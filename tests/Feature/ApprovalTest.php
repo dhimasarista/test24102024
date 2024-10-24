@@ -4,6 +4,10 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Models\Approver;
+use App\Models\ApprovalStage;
+use App\Models\Expense;
+use App\Models\Status;
 
 class ApprovalTest extends TestCase
 {
@@ -43,48 +47,48 @@ class ApprovalTest extends TestCase
 
         $expenseIds = [];
         foreach ($expenses as $expense) {
-            $response = $this->postJson('/expense', $expense);
+            $response = $this->postJson('api/expenses', $expense);
             $expenseIds[] = $response->json('id');
         }
 
         // 4. Setujui pengeluaran pertama oleh semua approver
         foreach ($approvalStages as $index => $stage) {
-            $this->patchJson("/expense/{$expenseIds[0]}/approve", ['approver_id' => $stage['approver_id']]);
+            $this->patchJson("api/expenses/{$expenseIds[0]}/approve", ['approver_id' => $stage['approver_id']]);
         }
 
         // Pastikan status pengeluaran pertama disetujui
-        $response = $this->getJson("/expense/{$expenseIds[0]}");
+        $response = $this->getJson(route('expenses.show', ['id' => $expenseIds[0]]));
         $response->assertStatus(200)
                  ->assertJson([
-                     'status' => 'approved',
+                     'status' => 'disetujui', // Status baru
                  ]);
 
         // 5. Setujui pengeluaran kedua oleh dua approver
-        $this->patchJson("/expense/{$expenseIds[1]}/approve", ['approver_id' => $approvalStages[0]['approver_id']]);
-        $this->patchJson("/expense/{$expenseIds[1]}/approve", ['approver_id' => $approvalStages[1]['approver_id']]);
+        $this->patchJson("api/expenses/{$expenseIds[1]}/approve", ['approver_id' => $approvalStages[0]['approver_id']]);
+        $this->patchJson("api/expenses/{$expenseIds[1]}/approve", ['approver_id' => $approvalStages[1]['approver_id']]);
 
         // Pastikan status pengeluaran kedua menunggu persetujuan
-        $response = $this->getJson("/expense/{$expenseIds[1]}");
+        $response = $this->getJson(route('expenses.show', ['id' => $expenseIds[1]]));
         $response->assertStatus(200)
                  ->assertJson([
-                     'status' => 'pending',
+                     'status' => 'menunggu persetujuan', // Status baru
                  ]);
 
         // 6. Setujui pengeluaran ketiga oleh satu approver
-        $this->patchJson("/expense/{$expenseIds[2]}/approve", ['approver_id' => $approvalStages[0]['approver_id']]);
+        $this->patchJson("api/expenses/{$expenseIds[2]}/approve", ['approver_id' => $approvalStages[0]['approver_id']]);
 
         // Pastikan status pengeluaran ketiga menunggu persetujuan
-        $response = $this->getJson("/expense/{$expenseIds[2]}");
+        $response = $this->getJson(route('expenses.show', ['id' => $expenseIds[2]]));
         $response->assertStatus(200)
                  ->assertJson([
-                     'status' => 'pending',
+                     'status' => 'menunggu persetujuan', // Status baru
                  ]);
 
         // 7. Pastikan pengeluaran keempat belum disetujui
-        $response = $this->getJson("/expense/{$expenseIds[3]}");
+        $response = $this->getJson(route('expenses.show', ['id' => $expenseIds[3]]));
         $response->assertStatus(200)
                  ->assertJson([
-                     'status' => 'pending',
+                     'status' => 'menunggu persetujuan', // Status baru
                  ]);
     }
 }

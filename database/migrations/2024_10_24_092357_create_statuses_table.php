@@ -9,7 +9,7 @@ class CreateStatusesTable extends Migration
     {
         Schema::create('statuses', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique(); 
+            $table->string('name')->unique()->default("menunggu persetujuan"); 
             $table->timestamps();
         });
     }

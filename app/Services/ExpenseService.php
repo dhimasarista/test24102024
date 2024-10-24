@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services;
 
 use App\Models\ApprovalStage;
@@ -14,7 +15,7 @@ class ExpenseService
         // Buat pengeluaran
         $expense = Expense::create([
             'amount' => $data['amount'],
-            'status_id' => 1, // Status default: menunggu persetujuan
+            'status_id' => Status::where('name', 'menunggu persetujuan')->first()->id, // Status default: menunggu persetujuan
         ]);
 
         // Logika untuk approval stages
@@ -22,7 +23,7 @@ class ExpenseService
             Approval::create([
                 'expense_id' => $expense->id,
                 'approver_id' => $approverId,
-                'status_id' => 1, // Status default: menunggu persetujuan
+                'status_id' => Status::where('name', 'menunggu persetujuan')->first()->id, // Status default: menunggu persetujuan
             ]);
         }
 
@@ -54,5 +55,4 @@ class ExpenseService
             $expense->update(['status_id' => Status::where('name', 'disetujui')->first()->id]);
         }
     }
-
 }

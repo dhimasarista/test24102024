@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateExpenseRequest;
 use App\Models\Expense;
+use App\Services\ExpenseService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request; // Pastikan Request di-import
 use OpenApi\Annotations as OA;
 
 class ExpenseController extends Controller
@@ -63,12 +65,14 @@ class ExpenseController extends Controller
      */
     public function approve($id, Request $request): JsonResponse
     {
-        // Logic untuk menyetujui pengeluaran
+        $expenseService = new ExpenseService();
+        $expenseService->approveExpense($id, $request->validated()['approver_id']);
+        return response()->json(null, 200); // Mengembalikan respons tanpa isi
     }
 
     /**
      * @OA\Get(
-     *     path="api/expenses/{id}",
+     *     path="/api/expenses/{id}",
      *     summary="Ambil pengeluaran",
      *     tags={"Expenses"},
      *     @OA\Parameter(
@@ -99,7 +103,7 @@ class ExpenseController extends Controller
      */
     public function show($id): JsonResponse
     {
-        $expense = Expense::findOrFail($id);
+        $expense = Expense::with('approvals')->findOrFail($id); // Pastikan untuk memuat approvals
         return response()->json($expense);
     }
 }

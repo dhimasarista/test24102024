@@ -198,13 +198,13 @@
                 }
             }
         },
-        "/expenses/{id}": {
+        "/api/expenses/{id}": {
             "get": {
                 "tags": [
                     "Expenses"
                 ],
                 "summary": "Ambil pengeluaran",
-                "operationId": "b8d5c673ecdbb6a51bea7ec7cc5d0e30",
+                "operationId": "97128dceb5c799772eef314ba1b9b045",
                 "parameters": [
                     {
                         "name": "id",

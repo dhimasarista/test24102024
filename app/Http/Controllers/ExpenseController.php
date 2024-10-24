@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ApproveExpenseRequest;
+use App\Http\Requests\StoreExpenseRequest;
 use App\Models\Expense;
 use App\Services\ExpenseService;
 use Illuminate\Http\JsonResponse;
@@ -12,7 +14,7 @@ class ExpenseController extends Controller
 {
     /**
      * @OA\Post(
-     *     path="/expenses",
+     *     path="api/expenses",
      *     summary="Tambah pengeluaran",
      *     tags={"Expenses"},
      *     @OA\RequestBody(
@@ -40,7 +42,7 @@ class ExpenseController extends Controller
 
     /**
      * @OA\Patch(
-     *     path="/expenses/{id}/approve",
+     *     path="api/expenses/{id}/approve",
      *     summary="Setujui pengeluaran",
      *     tags={"Expenses"},
      *     @OA\Parameter(
@@ -62,10 +64,10 @@ class ExpenseController extends Controller
      *     @OA\Response(response=422, description="Validation Error"),
      * )
      */
-    public function approve($id, Request $request): JsonResponse
+    public function approve($id, ApproveExpenseRequest $request): JsonResponse
     {
         $expenseService = new ExpenseService();
-        $expenseService->approveExpense($id, $request->validated()['approver_id']);
+        $expenseService->approveExpense($id, $request->validated());
         return response()->json(null, 200); // Mengembalikan respons tanpa isi
     }
 

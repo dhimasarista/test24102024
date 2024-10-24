@@ -105,13 +105,13 @@
                 }
             }
         },
-        "/expenses": {
+        "api/expenses": {
             "post": {
                 "tags": [
                     "Expenses"
                 ],
                 "summary": "Tambah pengeluaran",
-                "operationId": "927e29ac31ae983af0a55ce5d487d554",
+                "operationId": "055acd698fcfe0e7df065ac8adf4b6db",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -155,13 +155,13 @@
                 }
             }
         },
-        "/expenses/{id}/approve": {
+        "api/expenses/{id}/approve": {
             "patch": {
                 "tags": [
                     "Expenses"
                 ],
                 "summary": "Setujui pengeluaran",
-                "operationId": "ab9a927bbe7195a48b9e42d68c200a08",
+                "operationId": "6de4e24370aeac60604a09b0a8f7ae1b",
                 "parameters": [
                     {
                         "name": "id",

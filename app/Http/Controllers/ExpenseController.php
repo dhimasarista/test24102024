@@ -2,109 +2,72 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ApproveExpenseRequest;
 use App\Http\Requests\StoreExpenseRequest;
-use App\Models\Expense;
+use App\Http\Requests\ApproveExpenseRequest;
 use App\Services\ExpenseService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request; // Pastikan Request di-import
-use OpenApi\Annotations as OA;
 
 class ExpenseController extends Controller
 {
+    protected $expenseService;
+
+    public function __construct(ExpenseService $expenseService)
+    {
+        $this->expenseService = $expenseService;
+    }
+
     /**
      * @OA\Post(
-     *     path="api/expenses",
-     *     summary="Tambah pengeluaran",
+     *     path="/expenses",
      *     tags={"Expenses"},
+     *     summary="Tambah pengeluaran",
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\JsonContent(
-     *             @OA\Property(property="amount", type="integer", example=1000)
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/StoreExpenseRequest")
      *     ),
-     *     @OA\Response(
-     *         response=201,
-     *         description="Pengeluaran ditambahkan",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="id", type="integer", example=1),
-     *             @OA\Property(property="amount", type="integer", example=1000),
-     *         )
-     *     ),
-     *     @OA\Response(response=422, description="Validation Error"),
+     *     @OA\Response(response=201, description="Pengeluaran berhasil ditambahkan"),
+     *     @OA\Response(response=422, description="Validasi gagal")
      * )
      */
     public function store(StoreExpenseRequest $request): JsonResponse
     {
-        $expense = Expense::create($request->validated());
+        $expense = $this->expenseService->createExpense($request->validated());
         return response()->json($expense, 201);
     }
 
     /**
      * @OA\Patch(
-     *     path="api/expenses/{id}/approve",
-     *     summary="Setujui pengeluaran",
+     *     path="/expenses/{id}/approve",
      *     tags={"Expenses"},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
+     *     summary="Setujui pengeluaran",
+     *     @OA\Parameter(name="id", in="path", required=true, description="ID pengeluaran"),
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\JsonContent(
-     *             @OA\Property(property="approver_id", type="integer", example=1)
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/ApproveExpenseRequest")
      *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Pengeluaran disetujui",
-     *     ),
-     *     @OA\Response(response=422, description="Validation Error"),
+     *     @OA\Response(response=200, description="Pengeluaran berhasil disetujui"),
+     *     @OA\Response(response=422, description="Validasi gagal")
      * )
      */
-    public function approve($id, ApproveExpenseRequest $request): JsonResponse
+    public function approveExpense($id, ApproveExpenseRequest $request): JsonResponse
     {
-        $expenseService = new ExpenseService();
-        $expenseService->approveExpense($id, $request->validated());
-        return response()->json(null, 200); // Mengembalikan respons tanpa isi
+        $expense = $this->expenseService->approveExpense($id, $request->validated());
+        return response()->json($expense, 200);
     }
 
     /**
      * @OA\Get(
-     *     path="/api/expenses/{id}",
-     *     summary="Ambil pengeluaran",
+     *     path="/expenses/{id}",
      *     tags={"Expenses"},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Detail pengeluaran",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="id", type="integer", example=1),
-     *             @OA\Property(property="amount", type="integer", example=1000),
-     *             @OA\Property(property="status", type="string", example="menunggu persetujuan"),
-     *             @OA\Property(property="approval", type="array",
-     *                 @OA\Items(
-     *                     @OA\Property(property="id", type="integer", example=1),
-     *                     @OA\Property(property="approver", type="integer", example=1),
-     *                     @OA\Property(property="name", type="string", example="Ana"),
-     *                     @OA\Property(property="status", type="integer", example=1)
-     *                 )
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(response=404, description="Pengeluaran tidak ditemukan"),
+     *     summary="Ambil pengeluaran",
+     *     @OA\Parameter(name="id", in="path", required=true, description="ID pengeluaran"),
+     *     @OA\Response(response=200, description="Pengeluaran ditemukan"),
+     *     @OA\Response(response=404, description="Pengeluaran tidak ditemukan")
      * )
      */
     public function show($id): JsonResponse
     {
-        $expense = Expense::with('approvals')->findOrFail($id); // Pastikan untuk memuat approvals
-        return response()->json($expense);
+        $expense = $this->expenseService->getExpense($id);
+        return response()->json($expense, 200);
     }
 }

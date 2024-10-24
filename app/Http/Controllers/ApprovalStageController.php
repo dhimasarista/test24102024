@@ -2,40 +2,56 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CreateApprovalStageRequest;
-use App\Http\Requests\StoreApprovalRequest;
 use App\Http\Requests\StoreApprovalStageRequest;
-use App\Models\ApprovalStage;
+use App\Http\Requests\UpdateApprovalStageRequest;
+use App\Services\ApprovalStageService;
 use Illuminate\Http\JsonResponse;
-use OpenApi\Annotations as OA;
 
 class ApprovalStageController extends Controller
 {
+    protected $approvalStageService;
+
+    public function __construct(ApprovalStageService $approvalStageService)
+    {
+        $this->approvalStageService = $approvalStageService;
+    }
+
     /**
      * @OA\Post(
-     *     path="api/approval-stages",
-     *     summary="Tambah tahap approval",
+     *     path="/approval-stages",
      *     tags={"Approval Stages"},
+     *     summary="Tambah tahap approval",
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\JsonContent(
-     *             @OA\Property(property="approver_id", type="integer", example=1)
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/StoreApprovalStageRequest")
      *     ),
-     *     @OA\Response(
-     *         response=201,
-     *         description="Approval stage ditambahkan",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="id", type="integer", example=1),
-     *             @OA\Property(property="approver_id", type="integer", example=1),
-     *         )
-     *     ),
-     *     @OA\Response(response=422, description="Validation Error"),
+     *     @OA\Response(response=201, description="Tahap approval berhasil ditambahkan"),
+     *     @OA\Response(response=422, description="Validasi gagal")
      * )
      */
     public function store(StoreApprovalStageRequest $request): JsonResponse
     {
-        $approvalStage = ApprovalStage::create($request->validated());
+        $approvalStage = $this->approvalStageService->createApprovalStage($request->validated());
         return response()->json($approvalStage, 201);
+    }
+
+    /**
+     * @OA\Put(
+     *     path="/approval-stages/{id}",
+     *     tags={"Approval Stages"},
+     *     summary="Ubah tahap approval",
+     *     @OA\Parameter(name="id", in="path", required=true, description="ID tahap approval"),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/UpdateApprovalStageRequest")
+     *     ),
+     *     @OA\Response(response=200, description="Tahap approval berhasil diubah"),
+     *     @OA\Response(response=422, description="Validasi gagal")
+     * )
+     */
+    public function update(UpdateApprovalStageRequest $request, $id): JsonResponse
+    {
+        $approvalStage = $this->approvalStageService->updateApprovalStage($id, $request->validated());
+        return response()->json($approvalStage, 200);
     }
 }

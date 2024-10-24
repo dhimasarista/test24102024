@@ -2,50 +2,40 @@
 
 namespace App\Services;
 
-use App\Models\ApprovalStage;
-use App\Models\Approver;
 use App\Models\Expense;
 use App\Models\Approval;
 use App\Models\Status;
+use Illuminate\Validation\ValidationException;
 
 class ExpenseService
 {
-    public function createExpense($data)
+    public function createExpense(array $data)
     {
-        // Buat pengeluaran
-        $expense = Expense::create([
+        $waitingStatus = Status::where('name', 'menunggu persetujuan')->firstOrFail();
+        return Expense::create([
             'amount' => $data['amount'],
-            'status_id' => Status::where('name', 'menunggu persetujuan')->first()->id, // Status default: menunggu persetujuan
+            'status_id' => $waitingStatus->id,
         ]);
-
-        // Logika untuk approval stages
-        foreach ($data['approver_ids'] as $approverId) {
-            Approval::create([
-                'expense_id' => $expense->id,
-                'approver_id' => $approverId,
-                'status_id' => Status::where('name', 'menunggu persetujuan')->first()->id, // Status default: menunggu persetujuan
-            ]);
-        }
-
-        return $expense;
     }
 
-    public function approveExpense($expenseId, $approverId)
+    public function approveExpense($id, array $data)
     {
-        $expense = Expense::findOrFail($expenseId);
-        $approver = Approver::findOrFail($approverId);
+        $expense = Expense::findOrFail($id);
+        $approverId = $data['approver_id'];
 
         // Cek tahapan approval yang sesuai
         $currentStage = $expense->approvals()->count();
         $nextStage = ApprovalStage::orderBy('id')->skip($currentStage)->firstOrFail();
 
         if ($nextStage->approver_id != $approverId) {
-            throw new \Exception('Tidak sesuai tahap approval');
+            throw ValidationException::withMessages([
+                'approver_id' => ['Tidak sesuai tahap approval'],
+            ]);
         }
 
         // Buat approval baru
         Approval::create([
-            'expense_id' => $expenseId,
+            'expense_id' => $id,
             'approver_id' => $approverId,
             'status_id' => Status::where('name', 'disetujui')->first()->id,
         ]);
@@ -54,5 +44,12 @@ class ExpenseService
         if ($expense->approvals()->count() == ApprovalStage::count()) {
             $expense->update(['status_id' => Status::where('name', 'disetujui')->first()->id]);
         }
+
+        return $expense;
+    }
+
+    public function getExpense($id)
+    {
+        return Expense::with(['status', 'approvals.approver'])->findOrFail($id);
     }
 }

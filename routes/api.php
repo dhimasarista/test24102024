@@ -20,9 +20,6 @@ Route::get('/test', function(){
     ], 200);
 });
 
-Route::get('/', function () {
-    return redirect(route("l5-swagger.default.api"));
-});
 
 // Rute untuk approver
 Route::post('/approvers', [ApproverController::class, 'store'])

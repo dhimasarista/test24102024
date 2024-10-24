@@ -3,6 +3,7 @@ namespace Tests\Feature;
 
 use App\Models\Approver;
 use App\Models\Expense;
+use DB;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -12,6 +13,7 @@ class ExpenseApprovalTest extends TestCase
 
     public function test_expenses_approval_flow()
     {
+        DB::beginTransaction();
         // Create approvers
         $approver1 = Approver::create(['name' => 'Ana']);
         $approver2 = Approver::create(['name' => 'Ani']);
@@ -54,5 +56,6 @@ class ExpenseApprovalTest extends TestCase
         $response = $this->getJson("/api/expenses/{$expense4->id}");
         $response->assertStatus(200)
                  ->assertJson(['status' => 'menunggu persetujuan']);
+        DB::commit();
     }
 }

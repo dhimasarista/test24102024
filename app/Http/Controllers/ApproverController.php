@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CreateApproverRequest;
+use App\Http\Requests\StoreApprovalRequest;
 use App\Models\Approver;
 use Illuminate\Http\JsonResponse;
 use OpenApi\Annotations as OA;
@@ -31,7 +31,7 @@ class ApproverController extends Controller
      *     @OA\Response(response=422, description="Validation Error"),
      * )
      */
-    public function store(CreateApproverRequest $request): JsonResponse
+    public function store(StoreApprovalRequest $request): JsonResponse
     {
         $approver = Approver::create($request->validated());
         return response()->json($approver, 201);

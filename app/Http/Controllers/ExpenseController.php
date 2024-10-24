@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CreateExpenseRequest;
 use App\Models\Expense;
 use App\Services\ExpenseService;
 use Illuminate\Http\JsonResponse;
@@ -33,7 +32,7 @@ class ExpenseController extends Controller
      *     @OA\Response(response=422, description="Validation Error"),
      * )
      */
-    public function store(CreateExpenseRequest $request): JsonResponse
+    public function store(StoreExpenseRequest $request): JsonResponse
     {
         $expense = Expense::create($request->validated());
         return response()->json($expense, 201);

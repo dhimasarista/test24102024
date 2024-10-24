@@ -11,7 +11,7 @@ class ApproverController extends Controller
 {
     /**
      * @OA\Post(
-     *     path="/approvers",
+     *     path="api/approvers",
      *     summary="Tambah approver",
      *     tags={"Approvers"},
      *     @OA\RequestBody(

@@ -11,7 +11,7 @@ class ApprovalStageController extends Controller
 {
     /**
      * @OA\Post(
-     *     path="/approval-stages",
+     *     path="api/approval-stages",
      *     summary="Tambah tahap approval",
      *     tags={"Approval Stages"},
      *     @OA\RequestBody(

@@ -5,13 +5,13 @@
         "version": "0.1"
     },
     "paths": {
-        "/approval-stages": {
+        "api/approval-stages": {
             "post": {
                 "tags": [
                     "Approval Stages"
                 ],
                 "summary": "Tambah tahap approval",
-                "operationId": "131fda46f87a1abfd3b19e563547a42c",
+                "operationId": "11332fc3263a345c5b469585ee99ed34",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -55,13 +55,13 @@
                 }
             }
         },
-        "/approvers": {
+        "api/approvers": {
             "post": {
                 "tags": [
                     "Approvers"
                 ],
                 "summary": "Tambah approver",
-                "operationId": "d5a2d64181488ae8bd962ec325167a01",
+                "operationId": "20c1d94567b998ea6e551dd561905f2f",
                 "requestBody": {
                     "required": true,
                     "content": {

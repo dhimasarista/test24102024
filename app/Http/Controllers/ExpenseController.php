@@ -68,7 +68,7 @@ class ExpenseController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/expenses/{id}",
+     *     path="api/expenses/{id}",
      *     summary="Ambil pengeluaran",
      *     tags={"Expenses"},
      *     @OA\Parameter(
